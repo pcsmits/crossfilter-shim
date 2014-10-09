@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>dc.js - Number Display Example</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../css/dc.css"/>
+</head>
+<body>
+
+<div id="chart-ring-year"></div>
+<div id="chart-hist-spend"></div>
+<div id="chart-row-spenders"></div>
+
+<script type="text/javascript" src="../js/d3.js"></script>
+<script type="text/javascript" src="../js/crossfilter.js"></script>
+<script type="text/javascript" src="../js/dc.js"></script>
+<script type="text/javascript">
+
+var  spendHistChart  = dc.barChart("#chart-hist-spend");
+
+var spendData = [];
+//d3.csv("spendData.csv", function(error, spendData) {finish(spendData);});
+d3.json("spendData4.json", function(error, spendData) {finish(spendData);});
+
+
+function finish (spendData){
+	// normalize/parse data
+	console.log(spendData);
+	spendData.forEach(function(d) {
+	    //d.attr3 = d.attr3.match(/\d+/);
+	});
+
+	// set crossfilter
+	var ndx = crossfilter(spendData),
+	    spendDim = ndx.dimension(function(d) {return d.attr3;}),
+	    spendHist    = spendDim.group().reduceCount();
+
+	spendHistChart
+	    .width(300).height(200)
+	    .dimension(spendDim)
+	    .group(spendHist)
+	    .x(d3.scale.linear().domain([0,10]))
+	    .elasticY(true);
+
+	spendHistChart.xAxis().tickFormat(function(d) {return d*10}); // convert back to base unit
+	spendHistChart.yAxis().ticks(2);
+
+	dc.renderAll();
+}
+
+</script>
+
+</body>
+</html>
